@@ -67,7 +67,60 @@ group by Categories.CategoryName
 
 --10.	Wypisz kategorie których średnie ceny są powyżej 10 tys
 
-
+SELECT [CategoryName], avg([Products].UnitPrice ) FROM [dbo].[Categories] 
+inner join [dbo].[Products] 
+on Categories.CategoryID=Products.ProductID
+group by [CategoryName] having avg([Products].UnitPrice) > 10
 
 --11.	Wypisz najdłużej pracujące osoby na każdym stanowisku
 
+SELECT LastName, FirstName, [Title]
+FROM Employees as e1
+where DATEDIFF(day, HireDate, GETDATE())  =
+(SELECT max(DATEDIFF(day, HireDate, GETDATE()))FROM Employees as e2
+where e1.[Title]=e2.[Title])
+--1.	Wypisz klientów z Londynu 
+
+SELECT ContactName FROM Customers 
+WHERE [City]='London'
+
+--2.	Znajdź nazwę firmy, czyli klienta, któremu przesłano towar statkiem amerykańskim 
+
+SELECT Distinct [CompanyName] FROM [dbo].[Customers] 
+INNER JOIN Orders 
+ON Customers.CustomerID=Orders.CustomerID
+WHERE [ShipCountry]='USA'
+
+--3.	Ilu jest pracowników jest kierownikami 
+
+SELECT COUNT(*) FROM Employees
+WHERE [Title] LIKE '%Manager%'
+
+--4.	Oblicz wiek pracowników (funkcja YEAR)
+
+SELECT LastName,FirstName, DATEDIFF(year,[BirthDate], GETDATE()) FROM Employees
+
+SELECT LastName,FirstName, YEAR(CURRENT_TIMESTAMP) - YEAR(BirthDate) AS Age FROM Employees
+
+--5.	Znajdź pracownika o najdłuższym nazwisku (funkcja length) 
+
+SELECT Lastname, FirstName FROM Employees
+WHERE LEN([Lastname])=(
+SELECT max(LEN([Lastname]))FROM Employees)
+
+
+--6.	Podaj ilu pracowników mieszka w takich samych miastach
+
+SELECT COUNT(*), City FROM Employees
+GROUP BY City
+
+--7.	Sprawdź czy do wszystkich klientów posiadasz numer faksu
+IF(SELECT  COUNT(*) FROM Customers
+ WHERE Fax is null) != 0
+ BEGIN
+ SELECT 'Nie wszyscy klienci  posiadaja numer faxu';
+END
+ ELSE
+ BEGIN
+ SELECT 'wszyscy posiadaja numer faksu';
+ END
